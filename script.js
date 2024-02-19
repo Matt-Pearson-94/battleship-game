@@ -1,82 +1,107 @@
-const flipButton = document.querySelector('#flip-button')
-const optionContainer = document.querySelector('.option-container')
-const gamesBoardContainer = document.querySelector('#gamesboard-container')
+const boardContainer = document.querySelector('.board-container')
+// const fleet = document.querySelector('.fleet-container')
+let degrees = '0deg'
+let isHorizontal = true
 
-let degrees = 0
-colors = ['red', 'yellow', 'blue', 'orange', 'green', 'pink']
 
-// Option choosing
+function createBoard(player) {
+    const board = document.createElement('div')
+    board.classList.add(player)
+    boardContainer.append(board)
+}
+
+createBoard('player')
+createBoard('computer')
+
+function createSquares(user) {
+    const boards = document.querySelector(`.${user}`)
+        for (let i = 0; i < 100; i++) {
+            const square = document.createElement('div')
+            square.classList.add(`${user}-square`)
+            square.setAttribute('location', i)
+            boards.append(square)
+        }
+}
+
+createSquares('player')
+createSquares('computer')
+
 function flip() {
-    const optionShips = Array.from(optionContainer.children)
-    degrees = degrees === 0 ? 90 : 0
-    // if (degrees === 90) {
-    //     degrees = 0
-    // } else {
-    //     degrees = 90
-    // }
-    optionShips.forEach(optionShip => optionShip.style.transform = `rotate(${degrees}deg)`)
+    degrees = degrees === '0deg' ? '90deg' : '0deg' 
+    isHorizontal = degrees === '0deg' ? true : false
+    const fleetContainer = (Array.from(document.querySelector('.fleet-subcontainer').children))
+    fleetContainer.forEach(fleet => {
+        fleet.style.transform = `rotate(${degrees})`
+    })
+    console.log(degrees, isHorizontal)
 }
 
-flipButton.addEventListener('click', flip)
-
-// Creating boards
-const width = 10
-
-function createBoard(colors, user) {
-    const gameBoardContainer = document.createElement('div')
-    gameBoardContainer.classList.add('game-board')
-    gameBoardContainer.style.backgroundColor = colors
-    gameBoardContainer.id = user
-    gamesBoardContainer.append(gameBoardContainer)
-    for (let i = 0; i < width * width; i++) {
-        const square = document.createElement('div')
-        square.classList.add('square')
-        square.id = i
-        gameBoardContainer.append(square)
-        
-    }
-}
-
-createBoard(colors[Math.floor(Math.random()*colors.length)], 'player')
-createBoard(colors[Math.floor(Math.random()*colors.length)], 'computer')
-
-// Creating ships
 class Ship {
     constructor(name, length) {
-    this.name = name
-    this.length = length
+        this.name = name;
+        this.length = length;
     }
 }
 
-const destroyer = new Ship('destroyer', 2)
-const submarine = new Ship('submarine', 3)
-const cruiser = new Ship('cruiser', 3)
-const battleship = new Ship('battleship', 4)
 const carrier = new Ship('carrier', 5)
+const battleship = new Ship('battleship', 4)
+const cruiser = new Ship('cruiser', 3)
+const submarine = new Ship('submarine', 3)
+const destroyer = new Ship('destroyer', 2)
 
-const ship = [destroyer, submarine, cruiser, battleship, carrier]
+const fleet = [carrier, battleship, cruiser, submarine, destroyer]
 
-function addShipPiece() {
-    const allBoardBlocks = document.querySelectorAll('#computer div')
-    let randomBoolean = Math.random() < 0.5
-    let isHorizontal = randomBoolean
-    let randomStartIndex = Math.floor(Math.random() * width * width)
-    let shipSquares = []
-    for (let i = 0; i < ship.length; i++) {
-        if (isHorizontal) {
-            shipSquares.push(allBoardBlocks[Number(randomStartIndex) + i])
+function placeComputerFleetHorizontal(ship) {
+    let overlap = false
+    let randomPlacement = Math.floor(Math.random() * 100)
+    let potentialPlacement = []
+    // let computerSquare = document.querySelector(`.computer > div[location='${randomPlacement}']`)
+    for (let i = 0; i < ship; i++) {
+        if ((randomPlacement + i) % 10 === 0 && i != 0) {
+            overlap = true
         } else {
-            shipSquares.push(allBoardBlocks[Number(randomStartIndex) + i * width])
+            potentialPlacement.push(randomPlacement + i)
         }
-      
     }
-    shipSquares.forEach(shipSquare => {
-        shipSquare.classList.add(ship.name)
-        shipSquare.classList.add('taken')
-    })
-    console.log(shipSquares)
+    if (overlap === false) {
+        for (let i = 0; i < potentialPlacement.length; i++) {
+            document.querySelector(`.computer > div[location='${randomPlacement + i}']`).classList.add('taken')
+            
+        }
+    } else {
+        placeComputerFleetHorizontal(ship)
+    }
+}  
+
+function placeComputerFleetVertical(ship) {
+    let overlap = false
+    let randomPlacement = Math.floor(Math.random() * 100)
+    let potentialPlacement = []
+    // let computerSquare = document.querySelector(`.computer > div[location='${randomPlacement}']`)
+    for (let i = 0; i < ship; i++) {
+        if (randomPlacement + (i * 10) > 99) {
+            overlap = true
+            // placeComputerFleetVertical(ship)
+        } else {
+            potentialPlacement.push(randomPlacement + (i * 10))
+            console.log(randomPlacement + (i * 10))
+        }
+    }
+    if (overlap === false) {
+        for (let i = 0; i < potentialPlacement.length; i++) {
+            document.querySelector(`.computer > div[location='${randomPlacement + (i * 10)}']`).classList.add('taken')
+        } 
+    } else {
+        placeComputerFleetVertical(ship)
+    }
 }
 
-addShipPiece(destroyer)
-
-
+for (let i = 0; i < fleet.length; i++) {
+    let isHorizontalComputer = true
+    isHorizontalComputer = Math.random() * 1 > 0.5 ? true : false
+    if (isHorizontalComputer === true) {
+        placeComputerFleetHorizontal(fleet[i].length)
+    } else {
+        placeComputerFleetVertical(fleet[i].length)
+    }
+}
