@@ -1,8 +1,9 @@
 const boardContainer = document.querySelector('.board-container')
-// const fleet = document.querySelector('.fleet-container')
 let degrees = '0deg'
 let isHorizontal = true
-
+// First to 17 wins (5+4+3+3+2)
+playerScore = 0
+computerScore  = 0 
 
 function createBoard(player) {
     const board = document.createElement('div')
@@ -55,9 +56,10 @@ function placeComputerFleetHorizontal(ship) {
     let overlap = false
     let randomPlacement = Math.floor(Math.random() * 100)
     let potentialPlacement = []
-    // let computerSquare = document.querySelector(`.computer > div[location='${randomPlacement}']`)
     for (let i = 0; i < ship; i++) {
-        if ((randomPlacement + i) % 10 === 0 && i != 0) {
+        if (((randomPlacement + i) % 10 === 0 && i != 0)) {
+            overlap = true
+        } else if (document.querySelector(`.computer > div[location='${randomPlacement + i}']`).classList.contains('taken')) { 
             overlap = true
         } else {
             potentialPlacement.push(randomPlacement + i)
@@ -79,12 +81,12 @@ function placeComputerFleetVertical(ship) {
     let potentialPlacement = []
     // let computerSquare = document.querySelector(`.computer > div[location='${randomPlacement}']`)
     for (let i = 0; i < ship; i++) {
-        if (randomPlacement + (i * 10) > 99) {
+        if ((randomPlacement + (i * 10) > 99)) {
             overlap = true
-            // placeComputerFleetVertical(ship)
+        } else if (document.querySelector(`.computer > div[location='${randomPlacement + i * 10}']`).classList.contains('taken')) { 
+            overlap = true
         } else {
             potentialPlacement.push(randomPlacement + (i * 10))
-            console.log(randomPlacement + (i * 10))
         }
     }
     if (overlap === false) {
@@ -105,3 +107,39 @@ for (let i = 0; i < fleet.length; i++) {
         placeComputerFleetVertical(fleet[i].length)
     }
 }
+
+// document.querySelectorAll('fleet-subcontainer').forEach(ship => {
+//     ship.addEventListener('onclick', event => {
+//         console.log('test')
+//     })
+// })
+
+let fleetPreview = Array.from(document.querySelector('.fleet-subcontainer').children)
+
+// fleetPreview.forEach(ship => {
+//     ship.addEventListener('click', event => {
+//         document.querySelectorAll('.player-square').forEach(square => {
+//             square.addEventListener('click', event => {
+//                 console.log(square)
+//             })
+//         })
+//     })
+// })
+
+fleetPreview.forEach(ship => {
+    ship.addEventListener('mousedown', event => {
+        ship.style.backgroundColor = 'grey'
+        document.querySelectorAll('.player-square').forEach(square => {
+            square.addEventListener('mouseup', event => {
+                if (isHorizontal === true) {
+                    ship.style.backgroundColor = ''
+                    square.classList.add('taken')
+                } else {
+                    console.log('false')
+                }
+            })
+        })
+    })
+})
+
+

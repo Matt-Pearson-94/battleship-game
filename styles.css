@@ -153,3 +153,11 @@ button {
 .taken {
     background-color: red;
 }
+
+.player-square:hover {
+    background-color: rgb(1, 30, 1);
+}
+
+#clicked {
+    background-color: rgb(133, 0, 0);
+}
